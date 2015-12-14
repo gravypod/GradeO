@@ -1,7 +1,9 @@
+import os
 from os import listdir
-from os.path import isfile, basename, dirname, relpath
+from os.path import isfile, basename, dirname, relpath, join
 from traceback import format_exc
 import inspect
+import importlib
 
 """
 Used to labs from students.
@@ -69,7 +71,9 @@ class Lab:
 
         variables = {k.lower(): v.lower() for k, v in get_variables(self.module).items()}
 
-        return {int(k[9:]): v for k, v in variables.items() if k.startswith("question")}
+        variables = {int(k[10:]): v for k, v in variables.items() if k.startswith("question")}
+
+        return variables
 
     def get_function(self, name):
         """Get a function from this lab. The name is the name of the function."""
@@ -114,7 +118,7 @@ class AutoGrader:
         multiple_choice_correct = 0
         written_correct = 0
 
-        function_tests = self.functions
+        function_tests = self.get_test_functions()
 
         if self.multiple_choice_answers:
             multiple_choice_correct = get_percent_multiple_correct(self.multiple_choice_answers, lab)
@@ -131,7 +135,7 @@ def get_percent_written_correct(test_cases, lab):
     correct = 0
     total = len(test_cases)
 
-    for number, test in test_cases:
+    for number, test in test_cases.items():
 
         written_function = lab.get_function(number)
 
@@ -153,7 +157,7 @@ def get_percent_multiple_correct(correct_answers, lab):
     correct = 0
     total = len(correct_answers)
 
-    for number, answer in correct_answers:
+    for number, answer in correct_answers.items():
 
         if number not in lab_answers:
             continue
@@ -200,7 +204,7 @@ def get_ucid_from_filename(code_path):
     file_name = basename(code_path)
 
     ucid_start = file_name.index("_") + 1
-    ucid_end = file_name.index("_")
+    ucid_end = file_name.index(".")
 
     return file_name[ucid_start:ucid_end]
 
@@ -213,21 +217,30 @@ def load_module(code_path):
     try:
 
         # Magic module loading
-        code_dir = relpath(dirname(code_path))
+        code_dir = dirname(relpath(code_path))
         code_file = basename(code_path)
-
+        module_path = code_dir.replace(os.sep, ".")
         module_name = code_file[0:code_file.index(".")]
 
-        module = __import__("%s.%s" % (code_dir, module_name), fromlist=["*"])
+        # code_package = relpath(dirname(code_path)).replace(os.sep, ".")
 
-        return module
+        # if code_dir == ".":
+        # print(code_dir)
+        # print(code_file)
+        # print(module_path)
+        # print(module_name)
+        # print("%s.%s" % (module_path, module_name))
+        return importlib.import_module("%s.%s" % (module_path, module_name))  # , fromlist=["*"])
+        # else:
+        #    module = __import__(module_name, fromlist=["*"])
+        # return importlib.import_module(code_package + "." + module_name)
 
     # Must handle ANY exception.
     # This will come from the module we are loading.
     # Any exception thrown is from the student's code.
     except:
 
-        print("%s failed to load" % code_path)
+        # print("%s failed to load" % code_path)
         # traceback.format_exec() returns a string.
         # The string is the text that the exception would have been thrown.
         return format_exc()
@@ -236,19 +249,23 @@ def load_module(code_path):
 def load_labs(lab_folder, lab_number):
     labs = []
 
-    for lab_path in listdir(lab_folder):
+    for lab_file_name in listdir(lab_folder):
+
+        lab_path = join(lab_folder, lab_file_name)
 
         if not isfile(lab_path):
             continue
 
         if not lab_path.endswith(".py"):
+            print("Bad file in labs directory %s" % lab_path)
             continue
 
-        submission_ucid = get_ucid_from_filename(lab_path)
-        submission_lab_number = get_lab_from_filename(lab_path)
+        submission_ucid = get_ucid_from_filename(lab_file_name)
+        submission_lab_number = get_lab_from_filename(lab_file_name)
 
         if not submission_lab_number == lab_number:
             # TODO: Some form of logging to tell the TA that there is a problem
+            print("Incorrect lab in lab folder from %s" % submission_ucid)
             continue
 
         module = load_module(lab_path)
@@ -261,8 +278,17 @@ def load_labs(lab_folder, lab_number):
 def load_grader(grader_path):
     """Load AutoGrader module from grader_path"""
 
-    number = grader_path[2:6]
-    section = grader_path[-6:-3]
+    grader_file = basename(grader_path)
+
+    number = grader_file[2:5]
+
+    if not number.isdigit():
+        print("AutoGrader number cannot be parsed. Number is %s" % number)
+        raise Exception("AutoGrader name is formatted incorrectly %s " % grader_path)
+
+    number = int(number)
+
+    section = grader_file[-6:-3]
     module = load_module(grader_path)
 
     if type(module) is str:
@@ -270,7 +296,3 @@ def load_grader(grader_path):
         raise Exception("Error loading AutoGrader module")
 
     return AutoGrader(number, section, module)
-
-
-
-

@@ -5,7 +5,15 @@ import argparse
 __author__ = 'Joshua D. Katz'
 
 
+def get_format_bar(msg, length=35, c="-"):
+    part_size = int((length - len(msg)) / 2)
+    pad = (c * part_size)
+    return pad + msg + pad
+
+
 def grade(grader_file, lab_submission_path):
+
+    print("Starting grading")
 
     try:
         auto_grader = loader.load_grader(grader_file)
@@ -14,19 +22,21 @@ def grade(grader_file, lab_submission_path):
         print(format_exc())
         return
 
+    print("Grader loaded from section %s and lab number %d" % (auto_grader.class_section, auto_grader.lab_number))
+
+    print("Labs loaded from %s" % lab_submission_path)
+
     submitted_labs = loader.load_labs(lab_submission_path, auto_grader.lab_number)
 
     for lab in submitted_labs:
 
         if not lab.has_lab_loaded():
 
-            print("%s has not turned in a working lab.")
-            print("It threw an exception.")
-            print("___________________________________")
+            print(get_format_bar(lab.ucid + " has thrown"))
             print()
             print(lab.module)
             print()
-            print("___________________________________")
+            print(get_format_bar("grade accordingly"))
 
             continue
 
@@ -34,6 +44,7 @@ def grade(grader_file, lab_submission_path):
             lab_score = auto_grader.score(lab)
             print("%s received a %d" % (lab.ucid, lab_score))
         except:
+            print(format_exc())
             print("Failed to grade lab from %s, must be graded by hand." % lab.ucid)
 
 
