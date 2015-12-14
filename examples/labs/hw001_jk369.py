@@ -13,4 +13,4 @@ QUESTIONS_5 = "A"
 
 
 def multiply_by_two(number):
-    return 2
+    return number * 2
