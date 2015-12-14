@@ -225,7 +225,7 @@ def load_module(code_path):
     # Must handle ANY exception.
     # This will come from the module we are loading.
     # Any exception thrown is from the student's code.
-    except BaseException:
+    except:
 
         print("%s failed to load" % code_path)
         # traceback.format_exec() returns a string.
