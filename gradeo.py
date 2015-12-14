@@ -39,8 +39,8 @@ def grade(grader_file, lab_submission_path):
 
 def main():
     parser = argparse.ArgumentParser(description="GradeO automatic lab grader")
-    parser.add_argument("--labs", type=str, default="labs/")
-    parser.add_argument("--grader", type=argparse.FileType("r"))
+    parser.add_argument("--grader", action="store", type=str, help="The AutoGrader file to use", required=True)
+    parser.add_argument("--labs", action="store", type=str, help="Folder with labs to grade", default="labs/")
     options = parser.parse_args()
 
     grade(options.grader, options.labs)
