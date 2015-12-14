@@ -1,3 +1,4 @@
+from os import listdir
 from os.path import isfile, basename, dirname, relpath
 from traceback import format_exc
 import inspect
@@ -59,6 +60,10 @@ class Lab:
         self.lab_number = lab_number
         self.module = module
 
+    def has_lab_loaded(self):
+        """Return true if the lab is loadable by python (no errors)"""
+        return not type(self.module) is str
+
     def get_multiple_choice_answers(self):
         """Get all the multiple choice answers this lab."""
 
@@ -82,20 +87,29 @@ class Lab:
 
 class AutoGrader:
     lab_number = None
+    class_section = None
     functions = None
     multiple_choice_answers = None
 
-    def __init__(self, lab_number, module):
+    def __init__(self, lab_number, class_section, module):
         self.lab_number = lab_number
+        self.class_section = class_section
         self.functions = get_module_functions(module)
 
         answers = {k.lower(): v.lower() for k, v in get_variables(module).items()}
         self.multiple_choice_answers = {int(k[8:]): v for k, v in answers.items() if k.startswith("answers")}
 
     def get_test_functions(self):
+        """Get all the AutoGrader functions dedicated to testing student written lab functions"""
         return {n[0:n.index("_test")]: f for n, f in self.functions.items() if n.endswith("_test")}
 
     def score(self, lab):
+        """Returns score for the lab passed. Returns -1 if the lab could not load."""
+
+        scorer = self.functions["scorer"]
+
+        if not lab.has_lab_loaded():
+            return -1
 
         multiple_choice_correct = 0
         written_correct = 0
@@ -108,12 +122,11 @@ class AutoGrader:
         if function_tests:
             written_correct = get_percent_written_correct(function_tests, lab)
 
-        scorer = self.functions["scorer"]
-
         return scorer(multiple_choice_correct, written_correct)
 
 
 def get_percent_written_correct(test_cases, lab):
+    """Returns the percentage from 0.0 to 1.0 of correct written questions"""
 
     correct = 0
     total = len(test_cases)
@@ -134,6 +147,7 @@ def get_percent_written_correct(test_cases, lab):
 
 
 def get_percent_multiple_correct(correct_answers, lab):
+    """Returns the percentage from 0.0 to 1.0 of correct multiple choice questions"""
 
     lab_answers = lab.get_multiple_choice_answers()
     correct = 0
@@ -217,3 +231,46 @@ def load_module(code_path):
         # traceback.format_exec() returns a string.
         # The string is the text that the exception would have been thrown.
         return format_exc()
+
+
+def load_labs(lab_folder, lab_number):
+    labs = []
+
+    for lab_path in listdir(lab_folder):
+
+        if not isfile(lab_path):
+            continue
+
+        if not lab_path.endswith(".py"):
+            continue
+
+        submission_ucid = get_ucid_from_filename(lab_path)
+        submission_lab_number = get_lab_from_filename(lab_path)
+
+        if not submission_lab_number == lab_number:
+            # TODO: Some form of logging to tell the TA that there is a problem
+            continue
+
+        module = load_module(lab_path)
+
+        labs.append(Lab(submission_ucid, submission_lab_number, module))
+
+    return labs
+
+
+def load_grader(grader_path):
+    """Load AutoGrader module from grader_path"""
+
+    number = grader_path[2:6]
+    section = grader_path[-6:-3]
+    module = load_module(grader_path)
+
+    if type(module) is str:
+        print(module)
+        raise Exception("Error loading AutoGrader module")
+
+    return AutoGrader(number, section, module)
+
+
+
+
