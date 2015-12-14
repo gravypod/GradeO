@@ -25,7 +25,7 @@ def multiply_by_two_test(implementation):
 
 
 # Score the lab based on percent correct
-def score(mulit_choice_correct, written_correct):
+def scorer(mulit_choice_correct, written_correct):
     total_mc_points = 50  # 50% of the grade is MC
     total_written_points = 50  # 50% of the grade is
 
