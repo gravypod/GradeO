@@ -15,13 +15,8 @@ ANSWERS_5 = "A"
 
 # Test the method provided by the student
 def multiply_by_two_test(implementation):
-    if not implementation(2) == 4:
-        return False
 
-    if not implementation(10) == 20:
-        return False
-
-    return True
+    return implementation(2) == 4 and implementation(10) == 20
 
 
 # Score the lab based on percent correct
