@@ -30,6 +30,7 @@ class Lab:
         self.module = module
 
     def get_variables(self):
+        """Get all of the variables declared in this lab."""
 
         def is_var(item):
             return not inspect.isfunction(item) and inspect.getmodule(item) is None
@@ -39,12 +40,14 @@ class Lab:
         return {k: v for k, v in module_attributes.items() if is_var(v) and not k.startswith("__")}
 
     def get_multiple_choice_answers(self):
+        """Get all the multiple choice answers this lab."""
 
         variables = {k.lower(): v.lower() for k, v in self.get_variables().items()}
 
         return {int(k[9:]): v for k, v in variables.items() if k.startswith("question")}
 
     def get_function(self, name):
+        """Get a function from this lab. The name is the name of the function."""
 
         attribute = getattr(self.module, name)
 
