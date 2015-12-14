@@ -19,6 +19,7 @@ def grade(grader_file, lab_submission_path):
     for lab in submitted_labs:
 
         if not lab.has_lab_loaded():
+
             print("%s has not turned in a working lab.")
             print("It threw an exception.")
             print("___________________________________")
@@ -26,6 +27,7 @@ def grade(grader_file, lab_submission_path):
             print(lab.module)
             print()
             print("___________________________________")
+
             continue
 
         try:
