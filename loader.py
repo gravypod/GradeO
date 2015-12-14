@@ -1,10 +1,22 @@
 from os.path import isfile, basename, dirname, relpath
 from traceback import format_exc
 """
-Used to load files from
+Used to labs from students.
+
+The current agreed upon format for files is as follows:
+
+hw001_jk369.py
 """
 
 __author__ = 'Joshua D. Katz'
+
+
+def get_ucid_from_filename(code_path):
+    """Get UCID from file path. The code_dir is the path to the lab you want to pull the UCID from."""
+    file_name = basename(code_path)
+    ucid_start = file_name.index("_") + 1
+    ucid_end = file_name.index("_")
+    return file_name[ucid_start:ucid_end]
 
 
 def load_module(code_path):
