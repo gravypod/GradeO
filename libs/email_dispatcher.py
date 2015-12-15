@@ -1,4 +1,4 @@
-from libs.email_manager import send_email, close_smtp_connection
+from libs.email_manager import EmailManager
 from getpass import getpass
 from os.path import exists, isfile
 import json
@@ -30,8 +30,7 @@ class EmailDispatcher:
 
         print("Email enabled, credentials required.")
         username, password = get_email_credentials()
-        self.username = username
-        self.password = password
+        self.email_manager = EmailManager(username, password, course, section)
 
     def get_dispatch_preference(self, ucid):
 
@@ -63,11 +62,10 @@ class EmailDispatcher:
         if (not error and not email_case == "ALWAYS") or email_case == "NEVER":
             return
 
-        send_email(self.username, self.password, self.course, self.section, submitter_ucid, printout)
+        self.email_manager.send_email(submitter_ucid, printout)
 
-    @staticmethod
-    def shutdown():
-        close_smtp_connection()
+    def shutdown(self):
+        self.email_manager.close_smtp_connection()
 
 
 def get_email_credentials():
