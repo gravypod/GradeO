@@ -1,4 +1,5 @@
 import loader
+from auto_grader import load_grader
 from traceback import format_exc
 from report_card import print_incorrect_box, print_lab_score
 import argparse
@@ -17,7 +18,7 @@ def grade_labs(grader_file, lab_submission_path):
     :return: A dictionary who's keys are UCID (Strings) and values are ints if can be graded, or strings for errors.
     """
     try:
-        auto_grader = loader.load_grader(grader_file)
+        auto_grader = load_grader(grader_file)
         print("Grader loaded: section %s and lab number %0.3d" % (auto_grader.class_section, auto_grader.lab_number))
     except:
         print("Error loading AutoGrader file.")
@@ -31,12 +32,12 @@ def grade_labs(grader_file, lab_submission_path):
     scored_labs = {}
 
     for lab in submitted_labs:
-
+        ucid = lab.ucid
         score = auto_grader.score(lab)
         try:
-            submitted_labs[lab.ucid] = score
+            scored_labs[lab.ucid] = score
         except:
-            print_incorrect_box("Can't grade for %s", "Exception thrown:\n" + format_exc(), "Must grade by hand.")
+            print_incorrect_box("Can't grade for %s" % ucid, "Exception thrown:\n" + format_exc(), "Grade by hand.")
 
     return scored_labs
 
