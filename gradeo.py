@@ -1,9 +1,9 @@
 from traceback import format_exc
 import argparse
 
-import loader
-from auto_grader import load_grader
-from report_card import print_incorrect_box, print_lab_score
+from libs.auto_grader import load_grader
+from libs.lab_submissions import load_labs
+from libs.report_card import print_incorrect_box, print_lab_score
 from libs import file_utilities
 
 __author__ = 'Joshua D. Katz'
@@ -28,7 +28,7 @@ def grade_labs(grader_file, lab_submission_path):
 
     print("Labs loaded from %s" % lab_submission_path)
 
-    submitted_labs = loader.load_labs(lab_submission_path, auto_grader.lab_number)
+    submitted_labs = load_labs(lab_submission_path, auto_grader.lab_number)
 
     scored_labs = {}
 
