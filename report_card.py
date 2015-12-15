@@ -23,7 +23,7 @@ def get_incorrect_report(incorrect_functions, incorrect_multiple_choice):
 
     if incorrect_functions:
         message += "There were %d incorrect functions" % len(incorrect_functions) + "\n"
-        message += "\tIncorrect functions: " + ", ".join([f.__name__ for f in incorrect_functions]) + "\n"
+        message += "\tIncorrect functions: " + ", ".join(incorrect_functions) + "\n"
 
     if incorrect_multiple_choice:
         message += "There were %d incorrect multiple choice answers" % len(incorrect_multiple_choice) + "\n"

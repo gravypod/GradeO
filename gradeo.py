@@ -6,37 +6,39 @@ import argparse
 __author__ = 'Joshua D. Katz'
 
 
-def grade(grader_file, lab_submission_path, short_print):
-    print("Starting grading")
-
+def grade_labs(grader_file, lab_submission_path):
     try:
         auto_grader = loader.load_grader(grader_file)
+        print("Grader loaded from section %s and lab number %0.3d" % (auto_grader.class_section, auto_grader.lab_number))
     except:
         print("Error loading AutoGrader file.")
         print(format_exc())
         return
 
-    print("Grader loaded from section %s and lab number %d" % (auto_grader.class_section, auto_grader.lab_number))
-
     print("Labs loaded from %s" % lab_submission_path)
 
     submitted_labs = loader.load_labs(lab_submission_path, auto_grader.lab_number)
 
-    for lab in submitted_labs:
+    return {lab.ucid: auto_grader.score(lab) for lab in submitted_labs}
 
-        if not lab.has_lab_loaded():
-            print_incorrect_box(lab.ucid + " has thrown", lab.module)
+
+def grade(grader_file, lab_submission_path, short_print):
+    graded_labs = grade_labs(grader_file, lab_submission_path)
+
+    for ucid, score in graded_labs.items():
+
+        # This happens when the load_module function in loader.py returned a string.
+        if type(score) is str:
+            print_incorrect_box(ucid + " has thrown", score)
             continue
 
         try:
 
-            lab_score = auto_grader.score(lab)
-
-            print_lab_score(lab.ucid, lab_score, short_print)
+            print_lab_score(ucid, score, short_print)
 
         except:
             print(format_exc())
-            print("Failed to grade lab from %s, must be graded by hand." % lab.ucid)
+            print("Failed to grade lab from %s, must be graded by hand." % ucid)
 
 
 def main():

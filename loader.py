@@ -128,10 +128,10 @@ class AutoGrader:
     def score(self, lab):
         """Returns score for the lab passed. Returns -1 if the lab could not load."""
 
-        scorer = self.functions["scorer"]
-
         if not lab.has_lab_loaded():
-            return -1
+            return lab.module
+
+        scorer = self.functions["scorer"]
 
         multiple_choice_response = (0, None)
         written_section_response = (0, None)
