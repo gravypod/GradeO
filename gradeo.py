@@ -28,7 +28,17 @@ def grade_labs(grader_file, lab_submission_path):
 
     submitted_labs = loader.load_labs(lab_submission_path, auto_grader.lab_number)
 
-    return {lab.ucid: auto_grader.score(lab) for lab in submitted_labs}
+    scored_labs = {}
+
+    for lab in submitted_labs:
+
+        score = auto_grader.score(lab)
+        try:
+            submitted_labs[lab.ucid] = score
+        except:
+            print_incorrect_box("Can't grade for %s", "Exception thrown:\n" + format_exc(), "Must grade by hand.")
+
+    return scored_labs
 
 
 def grade(grader_file, lab_submission_path, short_print):
@@ -48,13 +58,7 @@ def grade(grader_file, lab_submission_path, short_print):
             print_incorrect_box(ucid + " has thrown", score)
             continue
 
-        try:
-
-            print_lab_score(ucid, score, short_print)
-
-        except:
-            print(format_exc())
-            print("Failed to grade lab from %s, must be graded by hand." % ucid)
+        print_lab_score(ucid, score, short_print)
 
 
 def main():
