@@ -9,11 +9,12 @@ __author__ = 'Joshua D. Katz'
 
 def grade_labs(grader_file, lab_submission_path):
     """
-        Grade labs and return a dictionary of UCIDs and score results.
-        The score result WILL BE A STRING if it files to load.
+    This function loads the grader_file, runs it's score method against anything in the folder for lab_submission_path.
+    This is will return data but print out an absolute minimum amount of information.
 
-        grader_file is the path to the grader file.
-        lab_submission_path is a path to a folder containing labs.
+    :param grader_file: The path to the AutoGrader file
+    :param lab_submission_path: The path to the folder containing lab submissions
+    :return: A dictionary who's keys are UCID (Strings) and values are ints if can be graded, or strings for errors.
     """
     try:
         auto_grader = loader.load_grader(grader_file)
@@ -31,6 +32,13 @@ def grade_labs(grader_file, lab_submission_path):
 
 
 def grade(grader_file, lab_submission_path, short_print):
+    """
+    Call grade_labs and print out grade report
+    :param grader_file: The AutoGrader file path
+    :param lab_submission_path: The lab submission folder path
+    :param short_print: If set to true, printing will always atempt to be in short form
+    :return:
+    """
     graded_labs = grade_labs(grader_file, lab_submission_path)
 
     for ucid, score in graded_labs.items():
@@ -50,6 +58,11 @@ def grade(grader_file, lab_submission_path, short_print):
 
 
 def main():
+    """
+    Run when gradeo is run as the main file.
+    This only happens when it is not imported as a module
+    :return: Nothing
+    """
     parser = argparse.ArgumentParser(description="GradeO automatic lab grader")
 
     # AutoGrader file location argument

@@ -58,16 +58,32 @@ class Lab:
     module = None
 
     def __init__(self, ucid, lab_number, module):
+        """
+        Creates a Lab object.
+
+        :param ucid: The UCID of the person who submitted this work.
+        :param lab_number: The lab number of who.
+        :param module: The module loaded from the submitted lab file.
+        :return: Lab object.
+        """
         self.ucid = ucid
         self.lab_number = lab_number
         self.module = module
 
     def has_lab_loaded(self):
-        """Return true if the lab is loadable by python (no errors)"""
+        """
+        Checks to see if the lab was able to be loaded without throwing an exception.
+
+        :return: True if the lab is loaded successfully by load_module.
+        """
         return not type(self.module) is str
 
     def get_multiple_choice_answers(self):
-        """Get all the multiple choice answers this lab."""
+        """
+        Gets the values from every variable notating a multiple choice answers in the submitted lab.
+
+        :return: A dictionary where the key is an int of the question number, and the value is the answer.
+        """
 
         variables = {k.lower(): v.lower() for k, v in get_variables(self.module).items()}
 
@@ -76,7 +92,12 @@ class Lab:
         return variables
 
     def get_function(self, name):
-        """Get a function from this lab. The name is the name of the function."""
+        """
+        Get a function by name from the submitted lab.
+
+        :param name: The name of the function.
+        :return: An instance of the function or None if it does not exist.
+        """
 
         attribute = getattr(self.module, name)
 
@@ -90,20 +111,37 @@ class Lab:
 
 
 class LabScore:
-
     score = 0
     multiple_choice_score_set = None
     written_score_set = None
 
     def __init__(self, score, multiple_choice_score_set, written_score_set):
+        """
+        Create a LabScore object that contains information on the score of the lab.
+
+        :param score: The score for the lab
+        :param multiple_choice_score_set: The scored dictionary of multiple choice questions
+        :param written_score_set: The scored dictionary of written questions
+        :return: LabScore object
+        """
         self.score = score
         self.multiple_choice_score_set = multiple_choice_score_set
         self.written_score_set = written_score_set
 
     def get_incorrect_functions(self):
+        """
+        Get all the functions that were graded as incorrect.
+
+        :return: A list of the names of functions that were graded as incorrect.
+        """
         return [fun for fun in self.written_score_set if not self.written_score_set[fun]]
 
     def get_incorrect_multiple_choice(self):
+        """
+        Get all the multiple choice answers that were incorrect.
+
+        :return: A list of the number for every question that was wrong.
+        """
         return [fun for fun in self.multiple_choice_score_set if not self.multiple_choice_score_set[fun]]
 
 
@@ -114,6 +152,14 @@ class AutoGrader:
     multiple_choice_answers = None
 
     def __init__(self, lab_number, class_section, module):
+        """
+        Create the AutoGrader file that automates the scoring/grating process.
+
+        :param lab_number: The lab number that we are grading.
+        :param class_section: The class section that we are grading.
+        :param module: The module of the AutoGrader script. Loaded from .py file.
+        :return: AutoGrader object.
+        """
         self.lab_number = lab_number
         self.class_section = class_section
         self.functions = get_module_functions(module)
@@ -122,11 +168,20 @@ class AutoGrader:
         self.multiple_choice_answers = {int(k[8:]): v for k, v in answers.items() if k.startswith("answers")}
 
     def get_test_functions(self):
-        """Get all the AutoGrader functions dedicated to testing student written lab functions"""
+        """
+        Get all of the AutoGrader functions that are used for testing labs.
+
+        :return: A dictionary who's keys are the function the lab tests and who's value is the instance of the function.
+        """
         return {n[0:n.index("_test")]: f for n, f in self.functions.items() if n.endswith("_test")}
 
     def score(self, lab):
-        """Returns score for the lab passed. Returns -1 if the lab could not load."""
+        """
+        Used for scoring labs.
+
+        :param lab: The lab to score.
+        :return: Returns a string if the lab threw an exception or a score if the lab started correctly.
+        """
 
         if not lab.has_lab_loaded():
             return lab.module
@@ -150,8 +205,15 @@ class AutoGrader:
 
 
 def get_percent_written_correct(test_cases, lab):
-    """Returns the percentage from 0.0 to 1.0 of correct written questions"""
+    """
+    Get the percentage of correct written problems and their score_set.
 
+    The percent ranges from 0.0 (for none correct) to 1.0 (for all correct).
+
+    :param test_cases: The test functions from the AutoGrader.
+    :param lab: The lab to grade.
+    :return: A tuple of the percent of correctness, and a dictionary of functions names mapping to if they are correct.
+    """
     correct = 0
     total = len(test_cases)
     score_set = {}
@@ -175,7 +237,13 @@ def get_percent_written_correct(test_cases, lab):
 
 
 def get_percent_multiple_correct(correct_answers, lab):
-    """Returns the percentage from 0.0 to 1.0 of correct multiple choice questions"""
+    """
+    Get the percent of correct multiple choice answers.
+
+    :param correct_answers: The set of correct answers from the AutoGrader.
+    :param lab: The lab to score multiple choice questions from.
+    :return: A tuple with percent of correctness, and a dictionary with question numbers pointing to True if correct.
+    """
 
     lab_answers = lab.get_multiple_choice_answers()
     correct = 0
@@ -195,8 +263,12 @@ def get_percent_multiple_correct(correct_answers, lab):
 
 
 def get_variables(module):
-    """Get all of the variables declared in module."""
+    """
+    Get all of the variables defined within a module.
 
+    :param module: The module to inspect.
+    :return: A dictionary of strings for the variable name, and values for the value of the variable.
+    """
     def is_var(item):
         return not inspect.isfunction(item) and inspect.getmodule(item) is None
 
@@ -206,15 +278,33 @@ def get_variables(module):
 
 
 def is_function(mod, func):
+    """
+    Check to see if a module attribute is a function.
+
+    :param mod: Module to check ownership of.
+    :param func: Attribute who is suspected of being a function.
+    :return: True if the module is the owner of the attribute and if the attribute is a function.
+    """
     return inspect.isfunction(func) and inspect.getmodule(func) == mod
 
 
 def get_module_functions(mod):
+    """
+    Get all of the functions defined within a module.
+
+    :param mod: The module to pull functions from.
+    :return: A dictionary of function names and their function instances.
+    """
     return {func.__name__: func for func in mod.__dict__.values() if is_function(mod, func)}
 
 
 def get_lab_from_filename(code_path):
-    """Get lab numbers from the lab number files. The code_path is the path to the lab."""
+    """
+    Get the lab number from a lab submission file name.
+
+    :param code_path: The path to, or file name of, a submitted lab.
+    :return: None if parsing was uncompleted or a int parsed from the file name.
+    """
     file_name = basename(code_path)
 
     lab_number = file_name[2:5]
@@ -226,7 +316,12 @@ def get_lab_from_filename(code_path):
 
 
 def get_ucid_from_filename(code_path):
-    """Get UCID from file path. The code_dir is the path to the lab you want to pull the UCID from."""
+    """
+    Get the UCID from a submitted lab file.
+
+    :param code_path: The path to, or file name of, a submitted lab.
+    :return: The UCID of the submitter.
+    """
     file_name = basename(code_path)
 
     ucid_start = file_name.index("_") + 1
@@ -236,7 +331,13 @@ def get_ucid_from_filename(code_path):
 
 
 def load_module(code_path):
-    """Load a module from it's path. The code_path is a path to the file."""
+    """
+    Load a module within this directory tree.
+    TODO: Work from any directory.
+
+    :param code_path: The path to a python file.
+    :return: None if there is no file at the location, a string if there was an exception thrown or the loaded module.
+    """
     if not isfile(code_path):
         return None
 
@@ -273,6 +374,13 @@ def load_module(code_path):
 
 
 def load_labs(lab_folder, lab_number):
+    """
+    Load all of the submitted lab files from within a directory.
+
+    :param lab_folder: Folder containing all submitted labs.
+    :param lab_number: The lab number we are looking to grade.
+    :return: A list of Lab objects representing loaded labs.
+    """
     labs = []
 
     for lab_file_name in listdir(lab_folder):
@@ -302,8 +410,12 @@ def load_labs(lab_folder, lab_number):
 
 
 def load_grader(grader_path):
-    """Load AutoGrader module from grader_path"""
+    """
+    Load the AutoGrader's script file.
 
+    :param grader_path: Path to the AutoGrader script file
+    :return: The AutoGrader file.
+    """
     grader_file = basename(grader_path)
 
     number = grader_file[2:5]
