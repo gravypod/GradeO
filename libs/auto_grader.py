@@ -1,6 +1,7 @@
-from loader import load_module, get_module_functions, get_variables
-from lab_submissions import LabScore
 from os.path import basename
+
+from libs.module_loader import load_module, get_module_functions, get_variables
+from lab_submissions import LabScore
 
 """
 

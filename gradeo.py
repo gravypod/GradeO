@@ -1,9 +1,10 @@
+from traceback import format_exc
+import argparse
+
 import loader
 from auto_grader import load_grader
-from traceback import format_exc
 from report_card import print_incorrect_box, print_lab_score
-import argparse
-import file_utilities
+from libs import file_utilities
 
 __author__ = 'Joshua D. Katz'
 
@@ -54,7 +55,7 @@ def grade(grader_file, lab_submission_path, short_print):
 
     for ucid, score in graded_labs.items():
 
-        # This happens when the load_module function in loader.py returned a string.
+        # This happens when the load_module function in module_loader.py returned a string.
         if type(score) is str:
             print_incorrect_box(ucid + " has thrown", score)
             continue

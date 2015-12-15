@@ -1,7 +1,8 @@
 from os import listdir
 from os.path import join, isfile, basename
-from loader import get_variables, load_module
 import inspect
+
+from libs.module_loader import get_variables, load_module
 
 """
 Used to load labs from students.
