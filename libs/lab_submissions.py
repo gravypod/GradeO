@@ -1,5 +1,6 @@
 from os import listdir
 from os.path import join, isfile, basename
+import libs.report_card as report_card
 import inspect
 
 from libs.module_loader import get_variables, load_module
@@ -81,10 +82,12 @@ class Lab:
 
 class LabScore:
     score = 0
+    ucid = ""
+    load_error = None
     multiple_choice_score_set = None
     written_score_set = None
 
-    def __init__(self, score, multiple_choice_score_set, written_score_set):
+    def __init__(self, ucid, score, load_error, multiple_choice_score_set, written_score_set):
         """
         Create a LabScore object that contains information on the score of the lab.
 
@@ -94,6 +97,8 @@ class LabScore:
         :return: LabScore object
         """
         self.score = score
+        self.ucid = ucid
+        self.load_error = load_error
         self.multiple_choice_score_set = multiple_choice_score_set
         self.written_score_set = written_score_set
 
@@ -103,6 +108,8 @@ class LabScore:
 
         :return: A list of the names of functions that were graded as incorrect.
         """
+        if not self.written_score_set:
+            return []
         return [fun for fun in self.written_score_set if not self.written_score_set[fun]]
 
     def get_incorrect_multiple_choice(self):
@@ -111,7 +118,30 @@ class LabScore:
 
         :return: A list of the number for every question that was wrong.
         """
+        if not self.multiple_choice_score_set:
+            return []
         return [fun for fun in self.multiple_choice_score_set if not self.multiple_choice_score_set[fun]]
+
+    def has_load_error(self):
+        return self.load_error is not None or self.score is None
+
+    def is_lab_correct(self):
+        if self.has_load_error():
+            return False
+
+        return len(self.get_incorrect_functions() + self.get_incorrect_multiple_choice()) == 0
+
+    def get_score_report(self,  short_hand):
+        functions_incorrect = self.get_incorrect_functions()
+        mc_incorrect = self.get_incorrect_multiple_choice()
+
+        if self.has_load_error():
+            return report_card.get_error_report(self.ucid, self.load_error)
+
+        if not short_hand:
+            return report_card.get_incorrect_report(self.ucid, self.score, functions_incorrect, mc_incorrect)
+
+        return "%s received a %d" % (self.ucid, self.score)
 
 
 def load_labs(lab_folder, lab_number):

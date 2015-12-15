@@ -32,13 +32,26 @@ def print_incorrect_box(intro, message, outro="grade accordingly"):
     print(get_format_bar(outro))
 
 
-def get_incorrect_report(incorrect_functions, incorrect_multiple_choice):
+def get_error_report(ucid, error):
+    longest = get_longest_line(error)
+    message = get_format_bar(ucid + " lab threw", length=longest) + "\n\n"
+    message += error + "\n\n"
+    message += get_format_bar("Error will impact grade", length=longest)
+    return message
+
+
+def get_longest_line(string):
+    return len(max(string.split("\n"), key=len))
+
+
+def get_incorrect_report(ucid, score, incorrect_functions, incorrect_multiple_choice):
     """
     Get the message contents to print out for an incorrect lab.
 
+    :param ucid: The UCID of the user who's grade us being reported.
     :param incorrect_functions: The functions that were incorrect in the lab submission.
     :param incorrect_multiple_choice: The multiple choice questions that were incorrect within this lab.
-    :return: A string within information detailing what was incorrect..
+    :return: A string within information detailing what was incorrect.
     """
     if not incorrect_functions and not incorrect_multiple_choice:
         raise Exception("get_incorrect_report called for perfect lab.")
@@ -47,13 +60,20 @@ def get_incorrect_report(incorrect_functions, incorrect_multiple_choice):
 
     if incorrect_functions:
         message += "There were %d incorrect functions:" % len(incorrect_functions) + "\n"
-        message += "\tIncorrect functions: " + ", ".join(incorrect_functions) + "\n"
+        message += "\n".join(["\t- " + f for f in incorrect_functions]) + "\n"
 
     if incorrect_multiple_choice:
         message += "There were %d incorrect multiple choice answers:" % len(incorrect_multiple_choice) + "\n"
-        message += "\tIncorrect multiple choice: " + ", ".join([str(c) for c in incorrect_multiple_choice]) + "\n"
+        message += "\n".join(["\t- Question " + str(c) for c in incorrect_multiple_choice]) + "\n"
 
-    return message
+    longest = get_longest_line(message)
+
+    if score is not None:
+        end = "\n" + get_format_bar("Score is %d" % score, length=longest) + "\n"
+    else:
+        end = "\n" + get_format_bar("No grade calculated", length=longest) + "\n"
+
+    return get_format_bar(ucid, length=longest) + "\n\n" + message + end
 
 
 def print_lab_score(ucid, lab_score, use_short_printout):
@@ -68,8 +88,6 @@ def print_lab_score(ucid, lab_score, use_short_printout):
     incorrect_functions = lab_score.get_incorrect_functions()
     incorrect_multiple_choice = lab_score.get_incorrect_multiple_choice()
 
-    if use_short_printout or (not incorrect_multiple_choice and not incorrect_functions):
-        print("%s received a %d" % (ucid, lab_score.score))
-        return
+    short_hand = use_short_printout or not lab_score.is_lab_correct
 
-    print_incorrect_box(ucid, get_incorrect_report(incorrect_functions, incorrect_multiple_choice))
+    print(lab_score.get_score_report(short_hand))

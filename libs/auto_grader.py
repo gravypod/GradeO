@@ -10,7 +10,7 @@ A grader is specified as follows:
 
     The current agreed upon format for grader files is as follows:
 
-        hw001_h01.py
+        hw001_cs100_h01.py
 
     All multiple choice answers are formatted as follows:
 
@@ -42,21 +42,23 @@ __author__ = 'Joshua D. Katz'
 
 class AutoGrader:
     lab_number = None
-    class_section = None
+    course = None
+    section = None
     functions = None
     multiple_choice_answers = None
 
-    def __init__(self, lab_number, class_section, module):
+    def __init__(self, lab_number, course, section, module):
         """
         Create the AutoGrader file that automates the scoring/grating process.
 
         :param lab_number: The lab number that we are grading.
-        :param class_section: The class section that we are grading.
+        :param course: The class section that we are grading.
         :param module: The module of the AutoGrader script. Loaded from .py file.
         :return: AutoGrader object.
         """
         self.lab_number = lab_number
-        self.class_section = class_section
+        self.course = course
+        self.section = section
         self.functions = get_module_functions(module)
 
         answers = {k.lower(): v.lower() for k, v in get_variables(module).items()}
@@ -79,7 +81,7 @@ class AutoGrader:
         """
 
         if not lab.has_lab_loaded():
-            return lab.module
+            return LabScore(lab.ucid, None, lab.module, None, None)
 
         scorer = self.functions["scorer"]
 
@@ -96,7 +98,7 @@ class AutoGrader:
 
         score = scorer(multiple_choice_response[0], written_section_response[0])
 
-        return LabScore(score, multiple_choice_response[1], written_section_response[1])
+        return LabScore(lab.ucid, score, None, multiple_choice_response[1], written_section_response[1])
 
 
 def get_percent_written_correct(test_cases, lab):
@@ -166,7 +168,11 @@ def load_grader(grader_path):
     """
     grader_file = basename(grader_path)
 
-    number = grader_file[2:5]
+    first_underscore = grader_file.index("_")
+    last_underscore = grader_file.rindex("_")
+    period = grader_file.rindex(".")
+
+    number = grader_file[2:first_underscore]
 
     if not number.isdigit():
         print("AutoGrader number cannot be parsed. Number is %s" % number)
@@ -174,11 +180,13 @@ def load_grader(grader_path):
 
     number = int(number)
 
-    section = grader_file[-6:-3]
+    course = grader_file[first_underscore + 1:last_underscore]
+
+    section = grader_file[last_underscore + 1:period]
     module = load_module(grader_path)
 
     if type(module) is str:
         print(module)
         raise Exception("Error loading AutoGrader module")
 
-    return AutoGrader(number, section, module)
+    return AutoGrader(number, course, section, module)
