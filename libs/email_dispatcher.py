@@ -10,7 +10,7 @@ class EmailDispatcher:
     def __init__(self, enable_email, email_default, preferences_path, course, section):
 
         self.enable_email = enable_email
-        self.send_by_default = email_default
+        self.email_default = email_default
         self.course = course
         self.section = section
 
@@ -34,18 +34,25 @@ class EmailDispatcher:
         self.password = password
 
     def get_dispatch_preference(self, ucid):
+
+        if not self.enable_email:
+            return "NEVER"
+
+        if self.preferences is None:
+            return self.email_default
+
         if self.course not in self.preferences:
-            return self.send_by_default
+            return self.email_default
 
         course_pref = self.preferences[self.course]
 
         if self.section not in course_pref:
-            return self.send_by_default
+            return self.email_default
 
         section_pref = course_pref[self.section]
 
         if ucid not in section_pref:
-            return self.send_by_default
+            return self.email_default
 
         return section_pref[ucid]
 

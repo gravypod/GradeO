@@ -48,6 +48,7 @@ def get_incorrect_report(ucid, score, incorrect_functions, incorrect_multiple_ch
     """
     Get the message contents to print out for an incorrect lab.
 
+    :param score: The score that the user got.
     :param ucid: The UCID of the user who's grade us being reported.
     :param incorrect_functions: The functions that were incorrect in the lab submission.
     :param incorrect_multiple_choice: The multiple choice questions that were incorrect within this lab.
@@ -74,20 +75,3 @@ def get_incorrect_report(ucid, score, incorrect_functions, incorrect_multiple_ch
         end = "\n" + get_format_bar("No grade calculated", length=longest) + "\n"
 
     return get_format_bar(ucid, length=longest) + "\n\n" + message + end
-
-
-def print_lab_score(ucid, lab_score, use_short_printout):
-    """
-    Print out the score for any lab.
-
-    :param ucid: UCID of the lab submitter.
-    :param lab_score: The score received on the lab.
-    :param use_short_printout: Should defer to shorthand output. If true, will only print in short hand.
-    :return: None
-    """
-    incorrect_functions = lab_score.get_incorrect_functions()
-    incorrect_multiple_choice = lab_score.get_incorrect_multiple_choice()
-
-    short_hand = use_short_printout or not lab_score.is_lab_correct
-
-    print(lab_score.get_score_report(short_hand))

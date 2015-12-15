@@ -131,7 +131,7 @@ class LabScore:
 
         return len(self.get_incorrect_functions() + self.get_incorrect_multiple_choice()) == 0
 
-    def get_score_report(self,  short_hand):
+    def get_score_report(self, short_hand):
         functions_incorrect = self.get_incorrect_functions()
         mc_incorrect = self.get_incorrect_multiple_choice()
 

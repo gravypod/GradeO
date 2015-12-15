@@ -3,7 +3,7 @@ import argparse
 
 from libs.auto_grader import load_grader
 from libs.lab_submissions import load_labs
-from libs.report_card import print_incorrect_box, print_lab_score
+from libs.report_card import print_incorrect_box
 from libs.email_dispatcher import EmailDispatcher
 from libs import file_utilities
 
@@ -15,7 +15,7 @@ def grade_labs(auto_grader, lab_submission_path):
     This function loads the grader_file, runs it's score method against anything in the folder for lab_submission_path.
     This is will return data but print out an absolute minimum amount of information.
 
-    :param grader_file: The path to the AutoGrader file
+    :param auto_grader: The AutoGrader instance.
     :param lab_submission_path: The path to the folder containing lab submissions
     :return: A dictionary who's keys are UCID (Strings) and values are ints if can be graded, or strings for errors.
     """
@@ -43,6 +43,7 @@ def grade(auto_grader, lab_submission_path, short_print, emailer):
     :param auto_grader: The AutoGrader to use for scoring.
     :param lab_submission_path: The lab submission folder path.
     :param short_print: If set to true, printing will always attempt to be in short form.
+    :param emailer: The EmailDispatcher instance.
     :return:
     """
     graded_labs = grade_labs(auto_grader, lab_submission_path)
