@@ -14,8 +14,12 @@ ANSWERS_5 = "A"
 
 
 # Test the method provided by the student
-def multiply_by_two_test(implementation):
+def multiply_by_four_test(implementation):
+    return implementation(2) == 8 and implementation(10) == 40
 
+
+# Test the method provided by the student
+def multiply_by_two_test(implementation):
     return implementation(2) == 4 and implementation(10) == 20
 
 

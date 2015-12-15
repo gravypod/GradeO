@@ -12,5 +12,9 @@ QUESTIONS_4 = "D"
 QUESTIONS_5 = "A"
 
 
+def multiply_by_four(number):
+    return number * 4.1
+
+
 def multiply_by_two(number):
     return number * 2
