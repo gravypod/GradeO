@@ -5,7 +5,7 @@ from libs.auto_grader import load_grader
 from libs.lab_submissions import load_labs
 from libs.report_card import print_incorrect_box
 from libs.email_dispatcher import EmailDispatcher
-from libs import file_utilities
+from libs import argparse_validation
 
 __author__ = 'Joshua D. Katz'
 
@@ -67,13 +67,13 @@ def main():
 
     # AutoGrader file location argument
     parser.add_argument("--grader", action="store",
-                        type=file_utilities.is_file,
+                        type=argparse_validation.is_file,
                         help="The AutoGrader file to use",
                         required=True)
 
     # Labs folder location argument
     parser.add_argument("--labs", action="store",
-                        type=file_utilities.is_folder,
+                        type=argparse_validation.is_folder,
                         help="Folder with labs to grade",
                         default="labs/")
 
@@ -94,6 +94,7 @@ def main():
                                     required=False)
 
     email_option_group.add_argument("--email_default", action="store",
+                                    type=argparse_validation.is_acceptable_email_default,
                                     help="Sets the default send option.",
                                     default="NEVER")
 
