@@ -2,21 +2,9 @@ import loader
 from traceback import format_exc
 from report_card import print_incorrect_box, print_lab_score
 import argparse
-from os.path import isfile, isdir, exists
+import file_utilities
 
 __author__ = 'Joshua D. Katz'
-
-
-def is_file(path):
-    if exists(path) and isfile(path):
-        return path
-    raise argparse.ArgumentTypeError("%s is not an existing file" % path)
-
-
-def is_folder(path):
-    if exists(path) and isdir(path):
-        return path
-    raise argparse.ArgumentTypeError("%s is not an existing folder" % path)
 
 
 def grade_labs(grader_file, lab_submission_path):
@@ -63,11 +51,28 @@ def grade(grader_file, lab_submission_path, short_print):
 
 def main():
     parser = argparse.ArgumentParser(description="GradeO automatic lab grader")
-    parser.add_argument("--grader", action="store", type=is_file, help="The AutoGrader file to use", required=True)
-    parser.add_argument("--labs", action="store", type=is_folder, help="Folder with labs to grade", default="labs/")
-    parser.add_argument("--short_print", action="store_true", help="Folder with labs to grade", default=False)
+
+    # AutoGrader file location argument
+    parser.add_argument("--grader", action="store",
+                        type=file_utilities.is_file,
+                        help="The AutoGrader file to use",
+                        required=True)
+
+    # Labs folder location argument
+    parser.add_argument("--labs", action="store",
+                        type=file_utilities.is_folder,
+                        help="Folder with labs to grade",
+                        default="labs/")
+
+    # Short Print option flag
+    parser.add_argument("--short_print", action="store_true",
+                        help="Folder with labs to grade",
+                        default=False)
+
+    # Parse arguments from command line arguments
     options = parser.parse_args()
 
+    # Pass to grade functionality
     grade(options.grader, options.labs, options.short_print)
 
 
