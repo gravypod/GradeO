@@ -89,6 +89,24 @@ class Lab:
         return attribute
 
 
+class LabScore:
+
+    score = 0
+    multiple_choice_score_set = None
+    written_score_set = None
+
+    def __init__(self, score, multiple_choice_score_set, written_score_set):
+        self.score = score
+        self.multiple_choice_score_set = multiple_choice_score_set
+        self.written_score_set = written_score_set
+
+    def get_incorrect_functions(self):
+        return [fun for fun in self.written_score_set if not self.written_score_set[fun]]
+
+    def get_incorrect_multiple_choice(self):
+        return [fun for fun in self.multiple_choice_score_set if not self.multiple_choice_score_set[fun]]
+
+
 class AutoGrader:
     lab_number = None
     class_section = None
@@ -115,18 +133,20 @@ class AutoGrader:
         if not lab.has_lab_loaded():
             return -1
 
-        multiple_choice_correct = 0
-        written_correct = 0
+        multiple_choice_response = (0, None)
+        written_section_response = (0, None)
 
         function_tests = self.get_test_functions()
 
         if self.multiple_choice_answers:
-            multiple_choice_correct = get_percent_multiple_correct(self.multiple_choice_answers, lab)
+            multiple_choice_response = get_percent_multiple_correct(self.multiple_choice_answers, lab)
 
         if function_tests:
-            written_correct = get_percent_written_correct(function_tests, lab)
+            written_section_response = get_percent_written_correct(function_tests, lab)
 
-        return scorer(multiple_choice_correct, written_correct)
+        score = scorer(multiple_choice_response[0], written_section_response[0])
+
+        return LabScore(score, multiple_choice_response[1], written_section_response[1])
 
 
 def get_percent_written_correct(test_cases, lab):
@@ -134,10 +154,13 @@ def get_percent_written_correct(test_cases, lab):
 
     correct = 0
     total = len(test_cases)
+    score_set = {}
 
     for number, test in test_cases.items():
 
         written_function = lab.get_function(number)
+
+        score_set[number] = False
 
         if written_function is None:
             continue
@@ -145,9 +168,10 @@ def get_percent_written_correct(test_cases, lab):
         if not test(written_function):
             continue
 
+        score_set[number] = True
         correct += 1
 
-    return correct / total
+    return correct / total, score_set
 
 
 def get_percent_multiple_correct(correct_answers, lab):
@@ -156,16 +180,18 @@ def get_percent_multiple_correct(correct_answers, lab):
     lab_answers = lab.get_multiple_choice_answers()
     correct = 0
     total = len(correct_answers)
+    score_set = {}
 
     for number, answer in correct_answers.items():
-
+        score_set[number] = False
         if number not in lab_answers:
             continue
         if not answer == lab_answers[number]:
             continue
+        score_set[number] = True
         correct += 1
 
-    return correct / total
+    return correct / total, score_set
 
 
 def get_variables(module):
