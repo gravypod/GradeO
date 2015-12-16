@@ -9,6 +9,7 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 import json
+from libs.ucid_login import get_grader_ucid_account
 
 __author__ = "Joshua D. Katz"
 
@@ -166,8 +167,15 @@ class EmailDispatcher(FinishedLabHandler):
         if not self.enable_email:
             return
 
-        print("Email enabled, credentials required.")
-        username, password = self.get_email_credentials()
+        ucid_account = get_grader_ucid_account()
+
+        if not ucid_account.is_login_available():
+            print("Grader did not input a username and password, email has been disabled.")
+            self.enable_email = False
+            return
+
+        username, password = get_grader_ucid_account().get_ucid_credentials()
+
         self.email_manager = EmailManager(username, password, course, section)
 
     def get_dispatch_preference(self, ucid):
@@ -220,16 +228,6 @@ class EmailDispatcher(FinishedLabHandler):
         :return:
         """
         self.email_manager.close_smtp_connection()
-
-    @staticmethod
-    def get_email_credentials():
-        """
-        Prompt the grader for their credentials.
-        :return:
-        """
-        ucid = input("Please input your UCID: ")
-        password = getpass()
-        return ucid, password
 
     def handle_lab(self, lab, broken=False):
 
