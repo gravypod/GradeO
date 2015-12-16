@@ -59,8 +59,13 @@ class Lab:
 
         self.multiple_choice_answers = multiple_choice_responses
         self.score = score
-        self.functions_incorrect = {f: correct for f, correct in function_report.items() if not correct}
-        self.multiple_choice_incorrect = {number: correct for number, correct in mc_report.items() if not correct}
+
+        if function_report and mc_report:
+            self.functions_incorrect = {f: correct for f, correct in function_report.items() if not correct}
+            self.multiple_choice_incorrect = {number: correct for number, correct in mc_report.items() if not correct}
+        else:
+            self.functions_incorrect = {}
+            self.multiple_choice_incorrect = {}
 
     def has_graded_successfully(self):
         return type(self.module) is not str
