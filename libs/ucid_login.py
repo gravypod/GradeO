@@ -27,6 +27,9 @@ class UCIDAccount:
     def get_ucid_credentials(self):
         return self.ucid, self.password
 
+    def get_ucid_email(self):
+        return "%s@njit.edu" % self.ucid
+
 
 def get_grader_ucid_account():
     global __GRADER_UCID_ACCOUNT__
