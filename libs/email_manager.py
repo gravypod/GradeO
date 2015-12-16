@@ -1,4 +1,3 @@
-from getpass import getpass
 from os.path import exists, isfile
 from libs.finished_manager import FinishedLabHandler
 import smtplib
