@@ -7,7 +7,5 @@ class ConsoleOutputManager(FinishedLabHandler):
     def __init__(self, prefer_shorthand):
         self.prefer_shorthand = prefer_shorthand
 
-    def handle_lab(self, lab_score, broken=False):
-        printout = lab_score.get_score_report(self.prefer_shorthand)
-
-        print(printout)
+    def handle_lab(self, lab, broken=False):
+        print(lab.get_score_report(self.prefer_shorthand))

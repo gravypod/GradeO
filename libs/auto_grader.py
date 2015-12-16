@@ -1,7 +1,6 @@
 from os.path import basename
 
 from libs.module_loader import load_module, get_module_functions, get_variables
-from libs.lab_submissions import LabScore
 
 """
 
@@ -72,16 +71,10 @@ class AutoGrader:
         """
         return {n[0:n.index("_test")]: f for n, f in self.functions.items() if n.endswith("_test")}
 
-    def score(self, lab):
-        """
-        Used for scoring labs.
+    def score(self, lab_functions_defined, lab_multiple_choice_answers):
 
-        :param lab: The lab to score.
-        :return: Returns a string if the lab threw an exception or a score if the lab started correctly.
-        """
-
-        if not lab.has_lab_loaded():
-            return LabScore(lab.ucid, None, lab.module, None, None)
+        if not lab_functions_defined and not lab_multiple_choice_answers:
+            return None, None, None
 
         scorer = self.functions["scorer"]
 
@@ -91,70 +84,41 @@ class AutoGrader:
         function_tests = self.get_test_functions()
 
         if self.multiple_choice_answers:
-            multiple_choice_response = get_percent_multiple_correct(self.multiple_choice_answers, lab)
+            correct_answers = self.multiple_choice_answers
+            multiple_choice_response = get_percent_multiple_correct(correct_answers, lab_multiple_choice_answers)
 
         if function_tests:
-            written_section_response = get_percent_written_correct(function_tests, lab)
+            written_section_response = get_percent_written_correct(function_tests, lab_functions_defined)
 
         score = scorer(multiple_choice_response[0], written_section_response[0])
 
-        return LabScore(lab.ucid, score, None, multiple_choice_response[1], written_section_response[1])
+        return score, multiple_choice_response[1], written_section_response[1]
 
 
-def get_percent_written_correct(test_cases, lab):
-    """
-    Get the percentage of correct written problems and their score_set.
-
-    The percent ranges from 0.0 (for none correct) to 1.0 (for all correct).
-
-    :param test_cases: The test functions from the AutoGrader.
-    :param lab: The lab to grade.
-    :return: A tuple of the percent of correctness, and a dictionary of functions names mapping to if they are correct.
-    """
+def get_percent_written_correct(test_cases, lab_functions_defined):
     correct = 0
     total = len(test_cases)
     score_set = {}
 
-    for number, test in test_cases.items():
+    for name, test in test_cases.items():
 
-        written_function = lab.get_function(number)
+        score_set[name] = name in lab_functions_defined and test(lab_functions_defined[name])
 
-        score_set[number] = False
-
-        if written_function is None:
-            continue
-
-        if not test(written_function):
-            continue
-
-        score_set[number] = True
-        correct += 1
+        if score_set[name]:
+            correct += 1
 
     return correct / total, score_set
 
 
-def get_percent_multiple_correct(correct_answers, lab):
-    """
-    Get the percent of correct multiple choice answers.
-
-    :param correct_answers: The set of correct answers from the AutoGrader.
-    :param lab: The lab to score multiple choice questions from.
-    :return: A tuple with percent of correctness, and a dictionary with question numbers pointing to True if correct.
-    """
-
-    lab_answers = lab.get_multiple_choice_answers()
+def get_percent_multiple_correct(correct_answers, lab_multiple_choice_answers):
     correct = 0
     total = len(correct_answers)
     score_set = {}
 
     for number, answer in correct_answers.items():
-        score_set[number] = False
-        if number not in lab_answers:
-            continue
-        if not answer == lab_answers[number]:
-            continue
-        score_set[number] = True
-        correct += 1
+        score_set[number] = number in lab_multiple_choice_answers and answer == lab_multiple_choice_answers[number]
+        if score_set[number]:
+            correct += 1
 
     return correct / total, score_set
 

@@ -16,22 +16,6 @@ def get_format_bar(msg, length=35, c="-"):
     return pad + msg + pad
 
 
-def print_incorrect_box(intro, message, outro="grade accordingly"):
-    """
-    Print a report of an incorrect lab.
-
-    :param intro: The message to put at the top of the box.
-    :param message: The message to put inside the box.
-    :param outro: The message to put on the bottom of the box.
-    :return: None
-    """
-    print(get_format_bar(intro))
-    print()
-    print(message)
-    print()
-    print(get_format_bar(outro))
-
-
 def get_error_report(ucid, error):
     longest = get_longest_line(error)
     message = get_format_bar(ucid + " lab threw", length=longest) + "\n\n"

@@ -1,56 +1,16 @@
 from traceback import format_exc
 import argparse
 
+from os import sep
 from libs.auto_grader import load_grader
 from libs.lab_submissions import load_labs
-from libs.report_card import print_incorrect_box
 from libs.email_manager import EmailDispatcher
 from libs.finished_manager import FinishedLabManager
 from libs.output_manager import ConsoleOutputManager
+from libs.move_finished_manager import MoveFinishedLabHandler
 from libs import argparse_validation
 
 __author__ = 'Joshua D. Katz'
-
-
-def grade_labs(auto_grader, lab_submission_path):
-    """
-    This function loads the grader_file, runs it's score method against anything in the folder for lab_submission_path.
-    This is will return data but print out an absolute minimum amount of information.
-
-    :param auto_grader: The AutoGrader instance.
-    :param lab_submission_path: The path to the folder containing lab submissions
-    :return: A dictionary who's keys are UCID (Strings) and values are ints if can be graded, or strings for errors.
-    """
-
-    print("Labs loaded from %s" % lab_submission_path)
-
-    submitted_labs = load_labs(lab_submission_path, auto_grader.lab_number)
-
-    scored_labs = []
-
-    for lab in submitted_labs:
-        try:
-            score = auto_grader.score(lab)
-        except:
-            print_incorrect_box("Can't grade for %s" % lab.ucid, "Exception thrown:\n" + format_exc(), "Grade by hand.")
-            continue
-
-        scored_labs.append(score)
-
-    return scored_labs
-
-
-def grade(auto_grader, lab_submission_path, finished_lab_manager):
-    """
-    Call grade_labs and print out grade report
-    :param auto_grader: The AutoGrader to use for scoring.
-    :param lab_submission_path: The lab submission folder path.
-    :param finished_lab_manager: The instance of the FinishedLabManager.
-    :return:
-    """
-    graded_labs = grade_labs(auto_grader, lab_submission_path)
-
-    finished_lab_manager.handle_graded_lab(graded_labs)
 
 
 def main():
@@ -71,7 +31,13 @@ def main():
     parser.add_argument("--labs", action="store",
                         type=argparse_validation.is_folder,
                         help="Folder with labs to grade",
-                        default="labs/")
+                        default="labs" + sep)
+
+    # Move lab after grading into a file
+    parser.add_argument("--move_finished", action="store",
+                        type=str,
+                        help="Move graded labs into this directory after processing if the directory exists.",
+                        default="graded" + sep)
 
     # Short Print option flag
     parser.add_argument("--short_print", action="store_true",
@@ -115,12 +81,15 @@ def main():
 
     output_manager = ConsoleOutputManager(options.short_print)
 
+    move_finished_handler = MoveFinishedLabHandler(options.move_finished)
+
     finished_lab_manager = FinishedLabManager([
         output_manager,
+        move_finished_handler,
         email_manager
     ])
 
-    finished_lab_manager.handle_graded_lab(grade_labs(auto_grader, options.labs))
+    finished_lab_manager.handle_graded_lab(load_labs(auto_grader, options.labs))
 
 
 if __name__ == '__main__':

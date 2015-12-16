@@ -11,19 +11,19 @@ class FinishedLabManager:
     def has_finished_lab_handlers(self):
         return bool(self.finished_lab_handlers)
 
-    def handle_graded_lab(self, lab_scores):
+    def handle_graded_lab(self, labs):
         if not self.has_finished_lab_handlers():
             return
 
         for handler in self.finished_lab_handlers:
-            handler.handle_labs(lab_scores)
+            handler.handle_labs(labs)
 
 
 class FinishedLabHandler(metaclass=ABCMeta):
     def handle_labs(self, lab_scores):
-        for lab_score in lab_scores:
-            self.handle_lab(lab_score, lab_score.is_lab_correct())
+        for labs in lab_scores:
+            self.handle_lab(labs, labs.is_lab_correct())
 
     @abstractmethod
-    def handle_lab(self, lab_score, broken=False):
+    def handle_lab(self, lab, broken=False):
         pass

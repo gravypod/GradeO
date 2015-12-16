@@ -231,9 +231,9 @@ class EmailDispatcher(FinishedLabHandler):
         password = getpass()
         return ucid, password
 
-    def handle_lab(self, lab_score, broken=False):
+    def handle_lab(self, lab, broken=False):
 
-        submitter_ucid = lab_score.ucid
+        submitter_ucid = lab.ucid
 
         submitter_preference = self.get_dispatch_preference(submitter_ucid)
 
@@ -243,4 +243,4 @@ class EmailDispatcher(FinishedLabHandler):
         if submitter_preference == "INCORRECT" and not broken:
             return
 
-        self.dispatch_email(submitter_ucid, lab_score.get_score_report(False), broken)
+        self.dispatch_email(submitter_ucid, lab.get_score_report(False), broken)
