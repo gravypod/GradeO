@@ -16,6 +16,8 @@ class FinishedLabManager:
             return
 
         for handler in self.finished_lab_handlers:
+            if handler is None:
+                continue
             handler.handle_labs(labs)
 
 

@@ -64,8 +64,8 @@ class Lab:
             self.functions_incorrect = {f: correct for f, correct in function_report.items() if not correct}
             self.multiple_choice_incorrect = {number: correct for number, correct in mc_report.items() if not correct}
         else:
-            self.functions_incorrect = {}
-            self.multiple_choice_incorrect = {}
+            self.functions_incorrect = None
+            self.multiple_choice_incorrect = None
 
     def has_graded_successfully(self):
         return type(self.module) is not str
@@ -88,10 +88,7 @@ class Lab:
         if self.has_load_error():
             return False
 
-        if self.functions_incorrect is None or self.multiple_choice_incorrect is None:
-            return False
-
-        return len(self.functions_incorrect) + len(self.multiple_choice_incorrect) == 0
+        return not self.functions_incorrect and not self.multiple_choice_incorrect
 
     def get_score_report(self, short_hand):
 

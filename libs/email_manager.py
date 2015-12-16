@@ -151,6 +151,7 @@ class EmailDispatcher(FinishedLabHandler):
         self.email_default = email_default
         self.course = course
         self.section = section
+        self.email_manager = None
 
         if not exists(preferences_path) or not isfile(preferences_path):
             self.enable_email = email_default == "ALWAYS"
@@ -226,7 +227,8 @@ class EmailDispatcher(FinishedLabHandler):
         Shutdown the EmailDispatcher and it's EmailManager instance.
         :return:
         """
-        self.email_manager.close_smtp_connection()
+        if self.email_manager is not None:
+            self.email_manager.close_smtp_connection()
 
     def handle_lab(self, lab, broken=False):
 

@@ -3,6 +3,7 @@ import argparse
 
 from os import sep
 from libs.auto_grader import load_grader
+from libs.csv_manager import CSVManager
 from libs.lab_submissions import load_labs
 from libs.email_manager import EmailDispatcher
 from libs.finished_manager import FinishedLabManager
@@ -44,6 +45,10 @@ def main():
                         help="Prefer short hand printing in console output",
                         default=False)
 
+    parser.add_argument("--csv", action="store",
+                        help="Set a file to store the grades in CSV format to.",
+                        default="")
+
     email_option_group = parser.add_argument_group("Email Dispatcher", "Send's email's to students")
 
     email_option_group.add_argument("--enable_email", action="store_true",
@@ -83,11 +88,16 @@ def main():
 
     move_finished_handler = MoveFinishedLabHandler(options.move_finished)
 
+    csv_manager = CSVManager(options.csv, auto_grader.lab_number)
+
     finished_lab_manager = FinishedLabManager([
         output_manager,
         move_finished_handler,
-        email_manager
+        email_manager,
+        csv_manager
     ])
+
+    email_manager.shutdown()
 
     finished_lab_manager.handle_graded_lab(load_labs(auto_grader, options.labs))
 
