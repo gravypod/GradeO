@@ -4,7 +4,9 @@ import argparse
 from libs.auto_grader import load_grader
 from libs.lab_submissions import load_labs
 from libs.report_card import print_incorrect_box
-from libs.email_dispatcher import EmailDispatcher
+from libs.email_manager import EmailDispatcher
+from libs.finished_manager import FinishedLabManager
+from libs.output_manager import ConsoleOutputManager
 from libs import argparse_validation
 
 __author__ = 'Joshua D. Katz'
@@ -24,37 +26,31 @@ def grade_labs(auto_grader, lab_submission_path):
 
     submitted_labs = load_labs(lab_submission_path, auto_grader.lab_number)
 
-    scored_labs = {}
+    scored_labs = []
 
     for lab in submitted_labs:
-        ucid = lab.ucid
         try:
             score = auto_grader.score(lab)
-            scored_labs[lab.ucid] = score
         except:
-            print_incorrect_box("Can't grade for %s" % ucid, "Exception thrown:\n" + format_exc(), "Grade by hand.")
+            print_incorrect_box("Can't grade for %s" % lab.ucid, "Exception thrown:\n" + format_exc(), "Grade by hand.")
+            continue
+
+        scored_labs.append(score)
 
     return scored_labs
 
 
-def grade(auto_grader, lab_submission_path, short_print, emailer):
+def grade(auto_grader, lab_submission_path, finished_lab_manager):
     """
     Call grade_labs and print out grade report
     :param auto_grader: The AutoGrader to use for scoring.
     :param lab_submission_path: The lab submission folder path.
-    :param short_print: If set to true, printing will always attempt to be in short form.
-    :param emailer: The EmailDispatcher instance.
+    :param finished_lab_manager: The instance of the FinishedLabManager.
     :return:
     """
     graded_labs = grade_labs(auto_grader, lab_submission_path)
 
-    for ucid, score in graded_labs.items():
-
-        # This happens when the load_module function in module_loader.py returned a string.
-
-        print(score.get_score_report(short_print))
-
-        emailer.dispatch_email(score.ucid, score.get_score_report(False), score.is_lab_correct())
+    finished_lab_manager.handle_graded_lab(graded_labs)
 
 
 def main():
@@ -115,9 +111,16 @@ def main():
         return
 
     email_options = [options.enable_email, options.email_default, options.email_pref]
-    email_dispatcher = EmailDispatcher(*email_options, course=course, section=section)
+    email_manager = EmailDispatcher(*email_options, course=course, section=section)
 
-    grade(auto_grader, options.labs, options.short_print, email_dispatcher)
+    output_manager = ConsoleOutputManager(options.short_print)
+
+    finished_lab_manager = FinishedLabManager([
+        output_manager,
+        email_manager
+    ])
+
+    finished_lab_manager.handle_graded_lab(grade_labs(auto_grader, options.labs))
 
 
 if __name__ == '__main__':
