@@ -79,7 +79,7 @@ def main():
 
     # Short Print option flag
     parser.add_argument("--short_print", action="store_true",
-                        help="Folder with labs to grade",
+                        help="Prefer short hand printing in console output",
                         default=False)
 
     email_option_group = parser.add_argument_group("Email Dispatcher", "Send's email's to students")
@@ -113,8 +113,11 @@ def main():
         print("Error loading AutoGrader file.")
         print(format_exc())
         return
-    email_sender = EmailDispatcher(options.enable_email, options.email_default, options.email_pref, course, section)
-    grade(auto_grader, options.labs, options.short_print, email_sender)
+
+    email_options = [options.enable_email, options.email_default, options.email_pref]
+    email_dispatcher = EmailDispatcher(*email_options, course=course, section=section)
+
+    grade(auto_grader, options.labs, options.short_print, email_dispatcher)
 
 
 if __name__ == '__main__':
