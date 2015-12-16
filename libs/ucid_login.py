@@ -1,5 +1,7 @@
 from getpass import getpass
 
+__author__ = 'Joshua D. Katz'
+
 __GRADER_UCID_ACCOUNT__ = None
 
 
