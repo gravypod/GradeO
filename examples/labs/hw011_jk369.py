@@ -13,4 +13,4 @@ QUESTIONS_5 = "A"
 
 
 def add_two(number):
-    return number * + 2
+    return number + 2

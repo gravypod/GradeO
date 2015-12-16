@@ -6,11 +6,11 @@ This is an example of how the grader should work.
 Created by Joshua Katz 12/14/2015
 """
 
-QUESTIONS_1 = "A"
-QUESTIONS_2 = "A"
-QUESTIONS_3 = "A"
-QUESTIONS_4 = "A"
-QUESTIONS_5 = "A"
+ANSWERS_1 = "A"
+ANSWERS_2 = "A"
+ANSWERS_3 = "A"
+ANSWERS_4 = "A"
+ANSWERS_5 = "A"
 
 
 # Test the method provided by the student
