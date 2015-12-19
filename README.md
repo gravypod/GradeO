@@ -56,7 +56,7 @@ Currently all files submitted to grade must follow a standard. Later that can be
         hw001_cs100_h01.py
 
 
-        > This will grade homework #001, for CS100, in section H01
+    > This will grade homework #001, for CS100, in section H01
 
 
 * The contents of the file will include any information needed to grade labs. Answers to multiple choice questions are defined as follows.
@@ -74,7 +74,7 @@ Currently all files submitted to grade must follow a standard. Later that can be
             return implementation(2) == 4 and implementation(10) == 12
 
 
-        > Note that all test functions must end with "_test"
+    > Note that all test functions must end with "_test"
 
 * The final, and most important step is grading and weighting the sections.
 
@@ -83,14 +83,14 @@ Currently all files submitted to grade must follow a standard. Later that can be
             written_pints = 50 # 50% written
             return (mc_correct * mc_points) + (written_correct * written_points)
 
-        > Note that mc\_correct and written\_correct are decimals from 0 to 1.
+    > Note that mc\_correct and written\_correct are decimals from 0 to 1.
 
 ### Lab Submissions
 * Lab submissions must follow a standard file name convention.
 
         hw001_jk369.py
 
-        > This is a lab for HW001 from the student jk369
+    > This is a lab for HW001 from the student jk369
 
 * Students must answer multiple choice questions following this format
 
