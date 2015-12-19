@@ -14,7 +14,7 @@ Do not touch it.
 
 
 def levenshtein_ast_difference(first, second):
-    # Original idea came from SOF
+    # http://stackoverflow.com/a/19598419
     if type(first) is not type(second):  # Not equal case
         return 1
 
