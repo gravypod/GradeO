@@ -15,19 +15,19 @@ There are a few features that GradeO implements.
 ## Usage
 1. Simple run of GradeO that will only output to console.
 
-    python gradeo.py --grader hw001_cs100_h01.py --labs labs/
+        python gradeo.py --grader hw001_cs100_h01.py --labs labs/
 
 2. Same as above, but will prefer using a short printing mode.
 
-    python gradeo.py --grader hw001_cs100_h01.py --labs labs/ --short_print
+        python gradeo.py --grader hw001_cs100_h01.py --labs labs/ --short_print
 
 3. Grade everything and store data into a CSV file named "grades.csv"
 
-    python gradeo.py --grader hw001_cs100_h01.py --labs labs/ --csv grades.csv
+        python gradeo.py --grader hw001_cs100_h01.py --labs labs/ --csv grades.csv
 
 4. Grade everything and move into folder "graded/".
 
-    python gradeo.py --grader hw001_cs100_h01.py --labs labs/ -move_finished a/finished/path/
+        python gradeo.py --grader hw001_cs100_h01.py --labs labs/ -move_finished a/finished/path/
 
     > Note that the folder must be created. If there is a folder "graded" has been graded in the same directory, labs will be moved in there.
 
