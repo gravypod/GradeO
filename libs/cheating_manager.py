@@ -4,8 +4,17 @@ from itertools import combinations
 
 __author__ = 'Joshua D. Katz'
 
+"""
+Warning: You may think that at some time touching this code will be a good idea.
+You are mistaken.
+
+This should be classified as a biohazard.
+Do not touch it.
+"""
+
 
 def levenshtein_ast_difference(first, second):
+    # Original idea came from SOF
     if type(first) is not type(second):  # Not equal case
         return 1
 
