@@ -9,6 +9,7 @@ from libs.email_manager import EmailDispatcher
 from libs.finished_manager import FinishedLabManager
 from libs.output_manager import ConsoleOutputManager
 from libs.move_finished_manager import MoveFinishedLabHandler
+from libs.cheating_manager import CheatingManager
 from libs import argparse_validation
 
 __author__ = 'Joshua D. Katz'
@@ -48,6 +49,10 @@ def main():
     parser.add_argument("--csv", action="store",
                         help="Set a file to store the grades in CSV format to.",
                         default="")
+
+    parser.add_argument("--find_similar", "--find_pumpkin_eaters", "--find_pants_on_fire", action="store_true",
+                        help="Enable a SUPER ALPHA similarity finder. Will take forever to run.",
+                        default=False)
 
     email_option_group = parser.add_argument_group("Email Dispatcher", "Send's email's to students")
 
@@ -90,11 +95,14 @@ def main():
 
     csv_manager = CSVManager(options.csv, auto_grader.lab_number)
 
+    cheating_manager = CheatingManager(options.find_similar)
+
     finished_lab_manager = FinishedLabManager([
         output_manager,
         move_finished_handler,
         email_manager,
-        csv_manager
+        csv_manager,
+        cheating_manager
     ])
 
     email_manager.shutdown()
